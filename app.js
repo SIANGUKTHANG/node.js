@@ -30,7 +30,7 @@ app.post('/download', async (req, res) => {
 
     // Once the video is downloaded, provide the download link to the frontend
     res.json({
-      downloadUrl: `https://node-js-vao5.onrender.com/download/${filename}`
+      downloadUrl: `https://node-js-pzjp.onrender.com/download/${filename}`
     });
   } catch (error) {
     console.error('Error downloading video:', error);

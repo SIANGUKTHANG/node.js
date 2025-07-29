@@ -1,4 +1,4 @@
- const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const { exec } = require('yt-dlp-exec');
 const path = require('path');
@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());  // Parse incoming JSON requests
- 
+
 app.post('/download', async (req, res) => {
   const { url } = req.body;
 
@@ -20,14 +20,15 @@ app.post('/download', async (req, res) => {
 
   try {
     const downloadOptions = {
-      format: 'best', // Best quality video+audio
-      output: 'downloads/%(title)s.%(ext)s', // Save in 'downloads' folder
-       cookies: '/etc/secrets/cookies.txt', 
+      output: 'downloads/%(title)s.%(ext)s',             // Save to downloads/
+      format: 'bestvideo+bestaudio/best',                // Best video+audio
+      cookies: '/etc/secrets/cookies.txt',               // Read-only cookie file
+      '--no-write-cookies': true                         // Prevent writing cookies
     };
 
     const result = await exec(url, downloadOptions);
 
-    // Extract file path from yt-dlp result
+    // Try to extract downloaded file path
     const downloadedFile = result.match(/Destination: (.*)/)?.[1] || null;
 
     if (downloadedFile) {
@@ -43,7 +44,7 @@ app.post('/download', async (req, res) => {
   }
 });
 
-// Serve the downloaded video file
+// Serve the downloaded file
 app.get('/download/:filename', (req, res) => {
   const { filename } = req.params;
   const videoPath = path.join(__dirname, 'downloads', filename);

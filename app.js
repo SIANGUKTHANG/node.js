@@ -22,6 +22,7 @@ app.post('/download', async (req, res) => {
     const downloadOptions = {
       format: 'best', // Best quality video+audio
       output: 'downloads/%(title)s.%(ext)s', // Save in 'downloads' folder
+       cookies: '/etc/secrets/cookies.txt', 
     };
 
     const result = await exec(url, downloadOptions);

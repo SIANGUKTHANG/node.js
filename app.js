@@ -30,7 +30,7 @@ app.post('/download', async (req, res) => {
     const result = await exec(url, downloadOptions);
 
     // Once done, return the download URL
-    res.json({ downloadUrl: `https://your-backend-url.onrender.com/download/${result.output}` });
+    res.json({ downloadUrl: `https://node-js-pzjp.onrender.com/download/${result.output}` });
 
   } catch (error) {
     console.error('Error downloading video:', error);

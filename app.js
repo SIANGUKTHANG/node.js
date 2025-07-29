@@ -1,15 +1,15 @@
  const express = require('express');
 const cors = require('cors');
-const { exec } = require('yt-dlp-exec');  // Using yt-dlp-exec for downloading YouTube videos
-const app = express();
-const port = process.env.PORT || 3000;
-  // Execute yt-dlp command
-const result = await exec(url, downloadOptions);
+const { exec } = require('yt-dlp-exec');
 const path = require('path');
 const fs = require('fs');
-// Enable CORS to allow requests from your Blogger frontend
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Enable CORS and handle JSON requests
 app.use(cors());
-app.use(express.json());  // Parse incoming JSON requests
+app.use(express.json());
 
 // Route to handle video download requests
 app.post('/download', async (req, res) => {
@@ -20,15 +20,25 @@ app.post('/download', async (req, res) => {
   }
 
   try {
-    // Download the video using yt-dlp
     const downloadOptions = {
-      format: 'best',  // Download the best quality video
-      output: '%(title)s.%(ext)s',  // Save with video title and extension
+      format: 'best',
+      output: '%(title)s.%(ext)s',
     };
 
-  
+    const { output } = await exec(url, downloadOptions);
+    const filename = output.split("/").pop();
 
-// Serve the downloaded video file
+    // Once the video is downloaded, provide the download link to the frontend
+    res.json({
+      downloadUrl: `https://node-js-vao5.onrender.com/download/${filename}`
+    });
+  } catch (error) {
+    console.error('Error downloading video:', error);
+    res.status(500).json({ error: 'Failed to download the video.' });
+  }
+});
+
+// Route to serve the video file
 app.get('/download/:filename', (req, res) => {
   const { filename } = req.params;
   const videoPath = path.join(__dirname, 'downloads', filename);
@@ -37,14 +47,6 @@ app.get('/download/:filename', (req, res) => {
     res.sendFile(videoPath);
   } else {
     res.status(404).json({ error: 'File not found' });
-  }
-});
-
-    // If successful, send back the download link (you can host it wherever you want)
-    res.json({ downloadUrl: `https://node-js-vao5.onrender.com/download/${result.output}` });
-  } catch (error) {
-    console.error('Error downloading video:', error);
-    res.status(500).json({ error: 'Failed to download the video.' });
   }
 });
 

@@ -10,8 +10,7 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());  // Parse incoming JSON requests
-
-// Route to handle video download requests
+ 
 app.post('/download', async (req, res) => {
   const { url } = req.body;
 
@@ -21,16 +20,21 @@ app.post('/download', async (req, res) => {
 
   try {
     const downloadOptions = {
-      format: 'best', // Download the best video and audio
-      output: '%(title)s.%(ext)s', // Save with video title and extension
-      cookiesFromBrowser: 'chrome',  // Use cookies from Chrome browser
+      format: 'best', // Best quality video+audio
+      output: 'downloads/%(title)s.%(ext)s', // Save in 'downloads' folder
     };
 
-    // Start downloading
     const result = await exec(url, downloadOptions);
 
-    // Once done, return the download URL
-    res.json({ downloadUrl: `https://node-js-pzjp.onrender.com/download/${result.output}` });
+    // Extract file path from yt-dlp result
+    const downloadedFile = result.match(/Destination: (.*)/)?.[1] || null;
+
+    if (downloadedFile) {
+      const fileName = path.basename(downloadedFile);
+      res.json({ downloadUrl: `https://node-js-pzjp.onrender.com/download/${fileName}` });
+    } else {
+      res.status(500).json({ error: 'Unable to parse downloaded file name.' });
+    }
 
   } catch (error) {
     console.error('Error downloading video:', error);
